@@ -1,0 +1,31 @@
+# --- Carpetas de Compilación y Base de Datos ---
+db/
+incremental_db/
+output_files/
+simulation/
+greybox_tmp/
+hc_output/
+hps_isw_handoff/
+sys_description/
+
+# --- Archivos Temporales y de Reporte ---
+*.bak
+*.orig
+*.rej
+*.rpt
+*.summary
+*.pin
+*.done
+*.qws
+*.txt
+*.log
+*.jdi
+*.orig
+*.eco
+*.map
+*.pas
+*.ini
+
+# --- Archivos de IPs de Intel/Altera ---
+*_generation_scripts/
+*_sim/
