@@ -15,23 +15,23 @@ module pwm_mod (
 
     // Señales de interconexión interna
     logic [3:0] count;
-    logic [3:0] thresh;
+    logic [3:0] th;
     logic       force_on;
     logic       cmp_lt;
 
     // --- Instancias de Submódulos ---
 
     // Contador de 4 bits
-    counter4 u_cnt (
+    cont4 u_cnt (
         .clk   (clk),
         .rst_n (rst_n),
         .count (count)
     );
 
     // Encoder de umbral basado en switches
-    thresh_enc u_thr (
-        .sw     (sw),
-        .thresh (thresh)
+    th_enc u_thr (
+        .sw (sw),
+        .th (th)
     );
 
     // Detector de condición "siempre encendido" (100% duty cycle)
@@ -41,9 +41,9 @@ module pwm_mod (
     );
 
     // Comparador de magnitud
-    comparator4 u_cmp (
+    comparador4 u_cmp (
         .a  (count),
-        .b  (thresh),
+        .b  (th),
         .lt (cmp_lt)
     );
 
