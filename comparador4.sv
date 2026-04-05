@@ -1,6 +1,6 @@
 /*
  * Autor       : José Solano
- * Proyecto    : Comparador de Magnitud
+ * Módulo      : Comparador de Magnitud
  * Descripción : Compara dos valores de 4 bits para generar la señal PWM.
  * Entradas    : a[3:0] (Contador), b[3:0] (Umbral/Threshold).
  * Salidas     : lt (Señal en alto si a < b).

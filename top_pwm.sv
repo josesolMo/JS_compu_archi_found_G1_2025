@@ -25,8 +25,8 @@ module top_pwm (
     // --- Instancia del Decodificador de 7 Segmentos ---
     // Muestra el valor binario de los switches en el display HEX0
     hex_dec u_hex (
-        .sw      (SW),
-        .hex_seg (HEX0)
+        .bin      (SW),
+        .seg (HEX0)
     );
 
 endmodule: top_pwm
