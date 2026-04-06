@@ -7,17 +7,17 @@
  */
 
 module cont4 (
-    input  logic       clk,
-    input  logic       rst_n,
+    input  logic clk,
+    input  logic rst_n,
     output logic [3:0] count
 );
+    logic [3:0] next_count;
 
-    // Registro secuencial con reset asíncrono
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            count <= 4'b0000;
-        else
-            count <= count + 4'b0001;
+    // (cuenta + 1) AND rst_n.
+    assign next_count = (count + 4'b0001) & {4{rst_n}};
+
+    // VARIABLES DE REGISTRO
+    always_ff @(posedge clk) begin
+        count <= next_count;
     end
-
 endmodule: cont4
