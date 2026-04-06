@@ -1,130 +1,83 @@
-module top_MEF (
+module top_mef (
     input  logic clk,
-    input  logic reset,
     input  logic OK,
+    input  logic DIR,
     input  logic SW,
-    output logic dir,
-    output logic ready,
-    output logic [3:0] piso,
-    output logic [2:0] cont
+    output logic E,
+    output logic D,
+    output logic V,
+    output logic C,
+    output logic P3,
+    output logic P2,
+    output logic P1,
+    output logic P0
 );
 
-    typedef enum logic [2:0] {
-        IDLE = 3'b000,
-        S0 = 3'b001,
-        S1 = 3'b010,
-        S2 = 3'b011,
-        S3 = 3'b100
-    } estado_MEF;
+    logic S1, S0;
+    logic next_S1, next_S0;
+    logic cont1, cont0;
+    logic dir;
 
-    estado_MEF estado_actual, siguiente_estado;
+    logic en_cont, en_piso, en_dir;
+    logic C_int;
 
-    logic registro_en;
-    logic cont_en;
-    logic cont_reset;
-    logic pulso_ok;
+    assign en_cont = S1 & ~S0 & ~OK;
+    assign en_piso = S1 & ~S0 & ~OK;
+    assign en_dir  = ~S1 & S0 & ~OK;
 
-    // Instancias
-    detector_flanco inst_detector_flanco (
+    estado_reg u_estado_reg (
         .clk(clk),
-        .reset(reset),
-        .pulso_in(~OK),
-        .pulso_out(pulso_ok)
+        .next_S1(next_S1),
+        .next_S0(next_S0),
+        .S1(S1),
+        .S0(S0)
     );
 
-    registro_piso inst_registro_piso (
+    contador u_contador (
         .clk(clk),
-        .reset(reset),
-        .registro_en(registro_en),
+        .en(en_cont),
+        .cont1(cont1),
+        .cont0(cont0)
+    );
+
+    dir_reg u_dir_reg (
+        .clk(clk),
+        .en(en_dir),
+        .DIR(DIR),
+        .dir(dir)
+    );
+
+    piso_reg u_piso_reg (
+        .clk(clk),
+        .en(en_piso),
         .SW(SW),
-        .piso(piso)
+        .P3(P3),
+        .P2(P2),
+        .P1(P1),
+        .P0(P0)
     );
 
-    contador_bits inst_contador_bits (
-        .clk(clk),
-        .reset(reset),
-        .cont_en(cont_en),
-        .cont_reset(cont_reset),
-        .cont(cont)
+    salida u_salida (
+        .S1(S1),
+        .S0(S0),
+        .dir(dir),
+        .cont1(cont1),
+        .cont0(cont0),
+        .E(E),
+        .D(D),
+        .V(V),
+        .C(C_int)
     );
 
-    // Registro de estado actual
-    always_ff @(posedge clk or posedge reset) begin
-        if (reset)
-            estado_actual <= IDLE;
-        else
-            estado_actual <= siguiente_estado;
-    end
+    siguiente_estado u_next (
+        .S1(S1),
+        .S0(S0),
+        .OK(~OK),
+        .C(C_int),
+        .next_S1(next_S1),
+        .next_S0(next_S0)
+    );
 
-    // Transición entre estados
-    always_comb begin
-        siguiente_estado = estado_actual;
-
-        case (estado_actual)
-
-            IDLE: begin
-                if (pulso_ok)
-                    siguiente_estado = S0;
-            end
-
-            S0: begin
-                if (pulso_ok)
-                    siguiente_estado = S1;
-            end
-
-            S1: begin
-                if (pulso_ok)
-                    siguiente_estado = S2;
-            end
-
-            S2: begin
-                if (pulso_ok && cont < 3)
-                    siguiente_estado = S2;
-                else if (pulso_ok && cont == 3)
-                    siguiente_estado = S3;
-            end
-
-            S3: begin
-                if (pulso_ok)
-                    siguiente_estado = IDLE;
-            end
-
-        endcase
-    end
-
-    // Lógica de salidas 
-    always_comb begin
-        registro_en = 1'b0;
-        cont_en = 1'b0;
-        cont_reset = 1'b0;
-        ready = 1'b0;
-
-        case (estado_actual)
-
-            IDLE: begin
-                cont_reset = 1'b1;
-            end
-
-            S2: begin
-                if (pulso_ok) begin
-                    registro_en = 1'b1;
-                    cont_en = 1'b1;
-                end
-            end
-
-            S3: begin
-                ready = 1'b1;
-            end
-
-        endcase
-    end
-
-    // Registro de dirección
-    always_ff @(posedge clk or posedge reset) begin
-        if (reset)
-            dir <= 1'b0;
-        else if (estado_actual == S1 && pulso_ok)
-            dir <= SW;
-    end
+    assign C = C_int;
 
 endmodule
