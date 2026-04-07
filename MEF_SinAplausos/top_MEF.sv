@@ -22,18 +22,10 @@ module top_mef (
     logic en_cont, en_piso, en_dir;
     logic clr_cont, clr_piso;
     logic C_int;
-    logic OK_pulse;
 
-    detector_flanco u_detector_flanco (
-        .clk(clk),
-        .RESET(RESET),
-        .OK(OK),
-        .OK_pulse(OK_pulse)
-    );
-
-    assign en_dir  = (~S1 &  S0) & OK_pulse;
-    assign en_piso = ( S1 & ~S0) & OK_pulse;
-    assign en_cont = ( S1 & ~S0) & OK_pulse;
+    assign en_dir  = (~S1 &  S0) & ~OK;
+    assign en_piso = ( S1 & ~S0) & ~OK;
+    assign en_cont = ( S1 & ~S0) & ~OK;
 
     assign clr_cont = (~S1) | S0;
     assign clr_piso = (~S1) | S0;
@@ -91,7 +83,7 @@ module top_mef (
     siguiente_estado u_next (
         .S1(S1),
         .S0(S0),
-        .OK_pulse(OK_pulse),
+        .OK(OK),
         .C(C_int),
         .next_S1(next_S1),
         .next_S0(next_S0)
