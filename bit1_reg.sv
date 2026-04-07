@@ -5,11 +5,12 @@ module bit1_reg (
     output logic bit_out
 );
 
-    always_ff @(negedge clk or posedge RESET) begin
-        if (RESET)
-            bit_out <= 1'b0;
-        else
-            bit_out <= bit_in;
+    logic next_bit;
+
+    assign next_bit = (~RESET & bit_in);
+
+    always_ff @(negedge clk) begin
+        bit_out <= next_bit;
     end
 
 endmodule
