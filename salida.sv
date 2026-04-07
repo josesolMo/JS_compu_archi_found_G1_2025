@@ -11,8 +11,8 @@ module salida (
 );
 
     assign E = S0;
-    assign D = S0 & dir;
+    assign D = (S1 | S0) & dir;
     assign V = S1 & S0;
-    assign C = S1 & cont1 & cont0;
+    assign C = S1 & ~S0 & cont1 & cont0;
 
 endmodule

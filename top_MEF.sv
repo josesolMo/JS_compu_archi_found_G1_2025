@@ -1,5 +1,5 @@
 module top_mef (
-    input  logic clk,
+    input  logic RESET,
     input  logic OK,
     input  logic DIR,
     input  logic SW,
@@ -19,14 +19,19 @@ module top_mef (
     logic dir;
 
     logic en_cont, en_piso, en_dir;
+    logic clr_cont, clr_piso;
     logic C_int;
 
-    assign en_cont = S1 & ~S0 & ~OK;
-    assign en_piso = S1 & ~S0 & ~OK;
-    assign en_dir  = ~S1 & S0 & ~OK;
+    assign en_dir  = ~S1 &  S0;
+    assign en_piso =  S1 & ~S0;
+    assign en_cont =  S1 & ~S0;
+
+    assign clr_cont = (~S1) | S0;
+    assign clr_piso = (~S1) | S0;
 
     estado_reg u_estado_reg (
-        .clk(clk),
+        .OK(OK),
+        .RESET(RESET),
         .next_S1(next_S1),
         .next_S0(next_S0),
         .S1(S1),
@@ -34,22 +39,27 @@ module top_mef (
     );
 
     contador u_contador (
-        .clk(clk),
+        .OK(OK),
+        .RESET(RESET),
         .en(en_cont),
+        .clr(clr_cont),
         .cont1(cont1),
         .cont0(cont0)
     );
 
     dir_reg u_dir_reg (
-        .clk(clk),
+        .OK(OK),
+        .RESET(RESET),
         .en(en_dir),
         .DIR(DIR),
         .dir(dir)
     );
 
     piso_reg u_piso_reg (
-        .clk(clk),
+        .OK(OK),
+        .RESET(RESET),
         .en(en_piso),
+        .clr(clr_piso),
         .SW(SW),
         .P3(P3),
         .P2(P2),
@@ -72,7 +82,6 @@ module top_mef (
     siguiente_estado u_next (
         .S1(S1),
         .S0(S0),
-        .OK(~OK),
         .C(C_int),
         .next_S1(next_S1),
         .next_S0(next_S0)

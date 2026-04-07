@@ -1,5 +1,6 @@
 module estado_reg (
-    input  logic clk,
+    input  logic OK,
+    input  logic RESET,
     input  logic next_S1,
     input  logic next_S0,
     output logic S1,
@@ -7,13 +8,15 @@ module estado_reg (
 );
 
     bit1_reg reg_S1 (
-        .clk(clk),
+        .clk(OK),
+        .RESET(RESET),
         .bit_in(next_S1),
         .bit_out(S1)
     );
 
     bit1_reg reg_S0 (
-        .clk(clk),
+        .clk(OK),
+        .RESET(RESET),
         .bit_in(next_S0),
         .bit_out(S0)
     );
