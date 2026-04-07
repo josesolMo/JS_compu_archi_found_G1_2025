@@ -8,20 +8,29 @@
 module top_pwm (
     input  logic        CLOCK_50, // Reloj de 50 MHz
     input  logic        KEY0,     // Reset (activo bajo)
-    input  logic [3:0]  SW,       // Pisos restantes
-    output logic        LEDR0,    // Señal PWM → LED
+    input  logic [9:0]  SW,       // Pisos restantes SW[3:0] / SW[9] DIR
+    output logic [9:0]  LEDR,     // Señal PWM → LEDR[8:0] / LEDR[9] DIR
     output logic [6:0]  HEX0      // Display 7 segmentos (activo bajo)
 );
 
+    logic pwm_signal; // Señal interna para el PWM
+	 
     // --- Instancia del Módulo PWM ---
     // Controla la intensidad del LEDR[0] basado en los switches
     pwm_mod u_pwm (
         .clk   (CLOCK_50),
         .rst_n (KEY0),
         .sw    (SW),
-        .pwm   (LEDR0)
+        .pwm   (pwm_signal)
     );
+	 
+	 // Misma señal PWM a los 5 LEDs
+    assign LEDR[8:0] = {9{pwm_signal}};
+	 
+	 // SW9 controla directamente al LEDR9
+    assign LEDR[9] = SW[9]; 
 
+	 
     // --- Instancia del Decodificador de 7 Segmentos ---
     // Muestra el valor binario de los switches en el display HEX0
     hex_dec u_hex (
