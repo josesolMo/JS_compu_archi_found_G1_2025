@@ -7,13 +7,13 @@ module siguiente_estado (
     output logic next_S0
 );
 
-    assign next_S1 = (~S1 &  S0 & ~OK) |
-                     ( S1 & ~S0)       |
-                     ( S1 &  S0 &  OK);
+    assign next_S1 = (~S1 &  S0 &  OK) |
+                     ( S1 & ~S0      ) |
+                     ( S1 &  S0 & ~OK);
 
-    assign next_S0 = (~S1 & ~S0 & ~OK) |
-                     (~S1 &  S0 &  OK)  |
-                     ( S1 & ~S0 & ~OK & C) |
-                     ( S1 &  S0 &  OK);
+    assign next_S0 = (~S1 & ~S0 &  OK) |
+                     (~S1 &  S0 & ~OK) |
+                     ( S1 & ~S0 &  OK & C) |
+                     ( S1 &  S0 & ~OK);
 
 endmodule
