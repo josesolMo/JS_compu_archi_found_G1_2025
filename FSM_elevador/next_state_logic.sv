@@ -36,27 +36,27 @@ module next_state_logic(
     and A3(is_s3, s2_n, s1,   s0);   // 011
     and A4(is_s4, s2,   s1_n, s0_n); // 100
 
-    // 000 a 000 si SW=0, 000 a 001 si SW=1
+    // 000 -> 000 / 001
     assign n2_s0 = 1'b0;
     assign n1_s0 = 1'b0;
     assign n0_s0 = SW;
 
-    // 001 a 010
+    // 001 -> 010
     assign n2_s1 = 1'b0;
     assign n1_s1 = 1'b1;
     assign n0_s1 = 1'b0;
 
-    // 010 a 010 mientras cont_fin=0, 010 a 011 cuando cont_fin=1
+    // 010 -> 010 / 011
     assign n2_s2 = 1'b0;
     assign n1_s2 = 1'b1;
     assign n0_s2 = cont_fin;
 
-    // 011 a 011 si SW=0, 011 a 100 si SW=1
-    assign n2_s3 = SW;
-    assign n1_s3 = sw_n;
-    assign n0_s3 = sw_n;
+    // 011 -> 100 
+    assign n2_s3 = 1'b1;
+    assign n1_s3 = 1'b0;
+    assign n0_s3 = 1'b0;
 
-    // 100 -> 100 si SW=0, 100 -> 000 si SW=1
+    // 100 -> 100 / 000
     assign n2_s4 = sw_n;
     assign n1_s4 = 1'b0;
     assign n0_s4 = 1'b0;
