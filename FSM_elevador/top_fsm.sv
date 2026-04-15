@@ -2,12 +2,12 @@ module top_fsm(
     input  logic       clk,
     input  logic       SW,
     output logic [9:0] LEDR,
-	 output logic [6:0] HEX0,
-	 output logic buzzer
+    output logic [6:0] HEX0,
+    output logic       buzzer
 );
 
     logic tick_3s;
-	 logic tick_50ms;
+    logic tick_50ms;
 
     logic [2:0] state_reg;
     logic [2:0] next_state;
@@ -35,31 +35,39 @@ module top_fsm(
     logic alu_sat;
     logic alu_cout;
 
+    logic [3:0] piso_actual_alu;
+    logic [3:0] piso_destino_alu;
+    logic op_alu;
+    logic alu_enable;
+
     logic led_tick;
     logic led_next;
-	 
-	 logic beep_1, beep_2, beep_3;
-	 logic [1:0] beep_code;
-	 logic start_beep;
-	 
-	 logic piso_destino_ready; //flag registro piso
-	 logic distancia_ready; // flag distancia calculada
 
-	 assign piso_destino_ready = (~state_reg[2]) & (state_reg[1]) & (~state_reg[0]) & cont_fin;
+    logic beep_1, beep_2, beep_3;
+    logic [1:0] beep_code;
+    logic start_beep;
 
-	 assign distancia_ready = (~state_reg[2]) & (state_reg[1]) & (state_reg[0]);
-
-    divisor_3s U_DIV_3 (
-        .clk(clk),
-        .tick_3s(tick_3s)
-    );
-	 
-	 divisor_50ms U_DIV_1 (
-        .clk(clk),
-        .tick_50ms(tick_50ms)
-    );
+    logic piso_destino_ready; // flag de piso listo
+    logic distancia_ready; // flag de distancia lista
 
     assign cont_fin = cont_bits[2] & (~cont_bits[1]) & (~cont_bits[0]);
+
+    assign piso_destino_ready = (~state_reg[2]) & ( state_reg[1]) & ( state_reg[0]);
+    assign distancia_ready    = ( state_reg[2]) & (~state_reg[1]) & (~state_reg[0]);
+
+    assign alu_enable = ( state_reg[2]) & (~state_reg[1]) & (~state_reg[0]);
+
+    assign piso_actual_alu[3]  = alu_enable & piso_actual_reg[3];
+    assign piso_actual_alu[2]  = alu_enable & piso_actual_reg[2];
+    assign piso_actual_alu[1]  = alu_enable & piso_actual_reg[1];
+    assign piso_actual_alu[0]  = alu_enable & piso_actual_reg[0];
+
+    assign piso_destino_alu[3] = alu_enable & piso_destino_reg[3];
+    assign piso_destino_alu[2] = alu_enable & piso_destino_reg[2];
+    assign piso_destino_alu[1] = alu_enable & piso_destino_reg[1];
+    assign piso_destino_alu[0] = alu_enable & piso_destino_reg[0];
+
+    assign op_alu = alu_enable & op_out;
 
     assign led_next = led_tick ^ tick_3s;
 
@@ -96,34 +104,54 @@ module top_fsm(
                      ( state_reg[0]);
 
     assign piso_actual_load = tick_3s &
-                          ( state_reg[2]) &
-                          (~state_reg[1]) &
-                          (~state_reg[0]) &
-                          SW;
-								  
-	 assign beep_1 = (~state_reg[2]) & (~state_reg[1]) & (~state_reg[0]) &
-                (~next_state[2]) & (~next_state[1]) & ( next_state[0]);
+                              ( state_reg[2]) &
+                              (~state_reg[1]) &
+                              (~state_reg[0]) &
+                              SW;
 
-	 assign beep_2 = (~state_reg[2]) & (~state_reg[1]) & ( state_reg[0]) &
-                (~next_state[2]) & ( next_state[1]) & (~next_state[0]);
+    assign beep_1 = (~state_reg[2]) & (~state_reg[1]) & (~state_reg[0]) &
+                    (~next_state[2]) & (~next_state[1]) & ( next_state[0]);
 
-	 assign beep_3 = ((~state_reg[2]) & ( state_reg[1]) & (~state_reg[0]) &
-                 (~next_state[2]) & ( next_state[1]) & ( next_state[0])) |
-                ((~state_reg[2]) & ( state_reg[1]) & ( state_reg[0]) &
-                 ( next_state[2]) & (~next_state[1]) & (~next_state[0]));
-					  
-	 assign beep_code[1] = beep_2 | beep_3;
-	 assign beep_code[0] = beep_1 | beep_3;
-	 
-	 assign start_beep = tick_3s & (beep_1 | beep_2 | beep_3);
-	 
-	 buzzer_ctrl U_BUZZ (
-    .clk(clk),
-    .tick(tick_50ms),
-    .start(start_beep),
-    .code(beep_code),
-    .buzzer(buzzer)
-	);
+    assign beep_2 = (~state_reg[2]) & (~state_reg[1]) & ( state_reg[0]) &
+                    (~next_state[2]) & ( next_state[1]) & (~next_state[0]);
+
+    assign beep_3 = ((~state_reg[2]) & ( state_reg[1]) & (~state_reg[0]) &
+                     (~next_state[2]) & ( next_state[1]) & ( next_state[0])) |
+                    ((~state_reg[2]) & ( state_reg[1]) & ( state_reg[0]) &
+                     ( next_state[2]) & (~next_state[1]) & (~next_state[0]));
+
+    assign beep_code[1] = beep_2 | beep_3;
+    assign beep_code[0] = beep_1 | beep_3;
+
+    assign start_beep = tick_3s & (beep_1 | beep_2 | beep_3);
+
+    assign piso_shift[3] = piso_destino_reg[2];
+    assign piso_shift[2] = piso_destino_reg[1];
+    assign piso_shift[1] = piso_destino_reg[0];
+    assign piso_shift[0] = SW;
+
+    assign LEDR[9] = piso_destino_reg[3];
+    assign LEDR[8] = piso_destino_reg[2];
+    assign LEDR[7] = piso_destino_reg[1];
+    assign LEDR[6] = piso_destino_reg[0];
+
+    assign LEDR[5] = piso_actual_reg[3];
+    assign LEDR[4] = piso_actual_reg[2];
+    assign LEDR[3] = piso_actual_reg[1];
+    assign LEDR[2] = piso_actual_reg[0];
+
+    assign LEDR[1] = op_out;
+    assign LEDR[0] = led_tick;
+
+    divisor_3s U_DIV_3 (
+        .clk(clk),
+        .tick_3s(tick_3s)
+    );
+
+    divisor_50ms U_DIV_1 (
+        .clk(clk),
+        .tick_50ms(tick_50ms)
+    );
 
     next_state_logic U_NEXT (
         .state_reg(state_reg),
@@ -159,11 +187,6 @@ module top_fsm(
         .q(led_tick)
     );
 
-    assign piso_shift[3] = piso_destino_reg[2];
-    assign piso_shift[2] = piso_destino_reg[1];
-    assign piso_shift[1] = piso_destino_reg[0];
-    assign piso_shift[0] = SW;
-
     registro_piso U_PISO_DESTINO (
         .clk(clk),
         .enable(piso_destino_load),
@@ -179,15 +202,15 @@ module top_fsm(
     );
 
     calc_distancia U_DIST (
-        .piso_actual (piso_actual_reg),
-        .piso_destino(piso_destino_reg),
+        .piso_actual (piso_actual_alu),
+        .piso_destino(piso_destino_alu),
         .distancia   (distancia_reg)
     );
 
     alu_core U_ALU (
-        .piso_actual(piso_actual_reg),
+        .piso_actual(piso_actual_alu),
         .cantidad   (distancia_reg),
-        .op         (op_out),
+        .op         (op_alu),
         .resultado  (alu_resultado),
         .sat        (alu_sat),
         .c_out      (alu_cout)
@@ -199,23 +222,18 @@ module top_fsm(
         .clear(cont_clear),
         .q(cont_bits)
     );
-	 
-	 sevenseg_estado U_HEX0 (
-    .state(state_reg),
-    .hex(HEX0)
-	 );
 
-    assign LEDR[9] = piso_destino_reg[3];
-    assign LEDR[8] = piso_destino_reg[2];
-    assign LEDR[7] = piso_destino_reg[1];
-    assign LEDR[6] = piso_destino_reg[0];
+    buzzer_ctrl U_BUZZ (
+        .clk(clk),
+        .tick(tick_50ms),
+        .start(start_beep),
+        .code(beep_code),
+        .buzzer(buzzer)
+    );
 
-    assign LEDR[5] = piso_actual_reg[3];
-    assign LEDR[4] = piso_actual_reg[2];
-    assign LEDR[3] = piso_actual_reg[1];
-    assign LEDR[2] = piso_actual_reg[0];
-
-    assign LEDR[1] = op_out;
-    assign LEDR[0] = led_tick;
+    sevenseg_estado U_HEX0 (
+        .state(state_reg),
+        .hex(HEX0)
+    );
 
 endmodule
