@@ -52,17 +52,6 @@ set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_symbol
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_signal_integrity
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_boundary_scan
-set_global_assignment -name SYSTEMVERILOG_FILE top_fsm.sv
-set_global_assignment -name SYSTEMVERILOG_FILE next_state_logic.sv
-set_global_assignment -name SYSTEMVERILOG_FILE comparador_eq_4bits.sv
-set_global_assignment -name SYSTEMVERILOG_FILE registro_piso.sv
-set_global_assignment -name SYSTEMVERILOG_FILE dir_reg.sv
-set_global_assignment -name SYSTEMVERILOG_FILE estado_reg_en.sv
-set_global_assignment -name SYSTEMVERILOG_FILE divisor_3s.sv
-set_global_assignment -name SYSTEMVERILOG_FILE full_adder.sv
-set_global_assignment -name SYSTEMVERILOG_FILE mux2_4bits.sv
-set_global_assignment -name SYSTEMVERILOG_FILE mux2_1bit.sv
-set_global_assignment -name SYSTEMVERILOG_FILE dff1.sv
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
@@ -78,5 +67,50 @@ set_location_assignment PIN_Y19 -to LEDR[6]
 set_location_assignment PIN_W20 -to LEDR[7]
 set_location_assignment PIN_W21 -to LEDR[8]
 set_location_assignment PIN_Y21 -to LEDR[9]
+set_global_assignment -name SYSTEMVERILOG_FILE contador_2bits.sv
+set_global_assignment -name SYSTEMVERILOG_FILE top_fsm.sv
+set_global_assignment -name SYSTEMVERILOG_FILE next_state_logic.sv
+set_global_assignment -name SYSTEMVERILOG_FILE registro_piso.sv
+set_global_assignment -name SYSTEMVERILOG_FILE dir_reg.sv
+set_global_assignment -name SYSTEMVERILOG_FILE estado_reg_en.sv
+set_global_assignment -name SYSTEMVERILOG_FILE divisor_3s.sv
+set_global_assignment -name SYSTEMVERILOG_FILE full_adder.sv
+set_global_assignment -name SYSTEMVERILOG_FILE mux2_4bits.sv
+set_global_assignment -name SYSTEMVERILOG_FILE mux2_1bit.sv
+set_global_assignment -name SYSTEMVERILOG_FILE dff1.sv
 set_global_assignment -name SYSTEMVERILOG_FILE contador_3bits.sv
+set_global_assignment -name SYSTEMVERILOG_FILE alu_core.sv
+set_global_assignment -name SYSTEMVERILOG_FILE calc_distancia.sv
+set_global_assignment -name SYSTEMVERILOG_FILE addsub_4bits.sv
+set_global_assignment -name SYSTEMVERILOG_FILE comparador_ge_4bits.sv
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name SYSTEMVERILOG_FILE sevenseg_estado.sv
+set_location_assignment PIN_AE26 -to HEX0[0]
+set_location_assignment PIN_AE27 -to HEX0[1]
+set_location_assignment PIN_AE28 -to HEX0[2]
+set_location_assignment PIN_AG27 -to HEX0[3]
+set_location_assignment PIN_AF28 -to HEX0[4]
+set_location_assignment PIN_AG28 -to HEX0[5]
+set_location_assignment PIN_AH28 -to HEX0[6]
+set_global_assignment -name SYSTEMVERILOG_FILE sevenseg_4bit.sv
+set_location_assignment PIN_AJ29 -to HEX1[0]
+set_location_assignment PIN_AH29 -to HEX1[1]
+set_location_assignment PIN_AH30 -to HEX1[2]
+set_location_assignment PIN_AG30 -to HEX1[3]
+set_location_assignment PIN_AF29 -to HEX1[4]
+set_location_assignment PIN_AF30 -to HEX1[5]
+set_location_assignment PIN_AD27 -to HEX1[6]
+set_location_assignment PIN_AB23 -to HEX2[0]
+set_location_assignment PIN_AE29 -to HEX2[1]
+set_location_assignment PIN_AD29 -to HEX2[2]
+set_location_assignment PIN_AC28 -to HEX2[3]
+set_location_assignment PIN_AD30 -to HEX2[4]
+set_location_assignment PIN_AC29 -to HEX2[5]
+set_location_assignment PIN_AC30 -to HEX2[6]
+set_global_assignment -name SYSTEMVERILOG_FILE buzzer_ctrl.sv
+set_location_assignment PIN_AC18 -to buzzer
+set_global_assignment -name SYSTEMVERILOG_FILE divisor_50ms.sv
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
