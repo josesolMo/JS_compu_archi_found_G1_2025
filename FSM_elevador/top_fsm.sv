@@ -41,6 +41,13 @@ module top_fsm(
 	 logic beep_1, beep_2, beep_3;
 	 logic [1:0] beep_code;
 	 logic start_beep;
+	 
+	 logic piso_destino_ready; //flag registro piso
+	 logic distancia_ready; // flag distancia calculada
+
+	 assign piso_destino_ready = (~state_reg[2]) & (state_reg[1]) & (~state_reg[0]) & cont_fin;
+
+	 assign distancia_ready = (~state_reg[2]) & (state_reg[1]) & (state_reg[0]);
 
     divisor_3s U_DIV_3 (
         .clk(clk),
