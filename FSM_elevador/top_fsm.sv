@@ -4,10 +4,6 @@ module top_fsm (
     output logic [9:0] LEDR,
     output logic [6:0] HEX0,
     output logic [6:0] HEX1,
-    output logic [6:0] HEX2,
-    output logic [6:0] HEX3,
-    output logic [6:0] HEX4,
-    output logic [6:0] HEX5,
     output logic buzzer,
     output logic dir_arriba,
     output logic dir_abajo,
@@ -83,7 +79,7 @@ module top_fsm (
     logic pulse;
     logic clap;
     logic clap_next;
-
+	 
     assign piso_destino_ready = (~state_reg[2]) & ( state_reg[1]) & ( state_reg[0]); // Flag que indica que el registro exitoso del piso destino
     assign iniciar_viaje = (state_reg[2]) & (~state_reg[1]) & (~state_reg[0]); // Flag que indica el movimiento entre pisos
 
@@ -148,10 +144,9 @@ module top_fsm (
 	 
 	 // Condición para actualizar el piso actual
     assign piso_actual_load = tick_3s &
-                              ( state_reg[2]) &
+                              (~state_reg[2]) &
                               (~state_reg[1]) &
-                              (~state_reg[0]) &
-                              clap;
+                              (~state_reg[0]);
 	 
 	 // Condición para 1 beep, entre estado 000 y 001
     assign beep_1 = (~state_reg[2]) & (~state_reg[1]) & (~state_reg[0]) &
@@ -236,6 +231,7 @@ module top_fsm (
         .state_reg  (state_reg),
         .SW         (clap),
         .cont_fin   (cont_fin),
+		  .dist_0    (dist_0),
         .next_state (next_state)
     );
 
@@ -281,8 +277,8 @@ module top_fsm (
     );
 
     calc_distancia U_DIST (
-        .piso_actual  (piso_actual_alu),
-        .piso_destino (piso_destino_alu),
+        .piso_actual  (piso_actual_reg),
+        .piso_destino (piso_destino_reg),
         .distancia    (distancia_reg)
     );
 
@@ -347,6 +343,7 @@ module top_fsm (
         .seg (HEX1)
     );
 
+	 /*
     hex_dec u_hex2 (
         .bin (piso_actual_reg),
         .seg (HEX2)
@@ -366,5 +363,5 @@ module top_fsm (
         .bin (dist_dyn),
         .seg (HEX5)
     );
-
+	*/
 endmodule

@@ -2,6 +2,7 @@ module next_state_logic(
     input  logic [2:0] state_reg,
     input  logic       SW,
     input  logic       cont_fin,
+	 input  logic       dist_0,
     output logic [2:0] next_state
 );
 
@@ -57,9 +58,9 @@ module next_state_logic(
     assign n0_s3 = 1'b0;
 
     // 100 -> 100 / 000
-    assign n2_s4 = sw_n;
+    assign n2_s4 = 1'b0;
     assign n1_s4 = 1'b0;
-    assign n0_s4 = 1'b0;
+    assign n0_s4 = dist_0;
 
     and B20(t20, is_s0, n2_s0);
     and B21(t21, is_s1, n2_s1);
