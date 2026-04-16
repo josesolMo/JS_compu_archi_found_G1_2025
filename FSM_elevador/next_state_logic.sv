@@ -1,6 +1,7 @@
 module next_state_logic(
     input  logic [2:0] state_reg,
     input  logic       SW,
+	 input  logic       stopped, // Elevador detenido
     input  logic       cont_fin,
     output logic [2:0] next_state
 );
@@ -10,6 +11,8 @@ module next_state_logic(
     logic sw_n;
 
     logic is_s0, is_s1, is_s2, is_s3, is_s4;
+	 
+	 logic initiate; // Cable (Elevador detenido y Aplauso detectado) 
 
     logic n2_s0, n1_s0, n0_s0;
     logic n2_s1, n1_s1, n0_s1;
@@ -35,11 +38,14 @@ module next_state_logic(
     and A2(is_s2, s2_n, s1,   s0_n); // 010
     and A3(is_s3, s2_n, s1,   s0);   // 011
     and A4(is_s4, s2,   s1_n, s0_n); // 100
+	 
+	 and A5(initiate, stopped, SW);
 
     // 000 -> 000 / 001
     assign n2_s0 = 1'b0;
     assign n1_s0 = 1'b0;
-    assign n0_s0 = SW;
+    //assign n0_s0 = SW;
+	 assign n0_s0 = initiate; // Cambio de condicion
 
     // 001 -> 010
     assign n2_s1 = 1'b0;

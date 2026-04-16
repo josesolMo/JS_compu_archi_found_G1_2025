@@ -3,7 +3,10 @@ module top_fsm(
     input  logic       SW,
     output logic [9:0] LEDR,
     output logic [6:0] HEX0,
-    output logic       buzzer
+	 output logic [6:0] HEX1,  // 7 segmentos piso actual dinamico
+    output logic       buzzer,
+	 output logic       pwm_motor,
+	 output logic       dir_motor
 );
 
     logic tick_3s;
@@ -47,13 +50,22 @@ module top_fsm(
     logic [1:0] beep_code;
     logic start_beep;
 
+	 // Señales para FSM Moviminento, PWM y calculo dinamico
     logic piso_destino_ready; // flag de piso listo
-    logic distancia_ready; // flag de distancia lista
+    logic iniciar_viaje;      // flag de distancia lista para iniciar movimiento
+	 
+	 logic en_pwm;             // Habilita PWM
+    logic en_rest;            // Habilita paso/resta
+	 logic stopped = 1'b1;     // flag de en movimiento, pausa la obtención de pisos en bajo
+	 logic dist_0;             // Selñal que comprueba si distancia es 0
+    logic internal_pwm;       // Señal PWM para el motor
+	 logic [3:0]  piso_dyn;    // Piso actual en tiempo real
+    logic [3:0]  dist_dyn;    // Distancia actual en tiempo real
 
     assign cont_fin = cont_bits[2] & (~cont_bits[1]) & (~cont_bits[0]);
 
     assign piso_destino_ready = (~state_reg[2]) & ( state_reg[1]) & ( state_reg[0]);
-    assign distancia_ready    = ( state_reg[2]) & (~state_reg[1]) & (~state_reg[0]);
+    assign iniciar_viaje      = ( state_reg[2]) & (~state_reg[1]) & (~state_reg[0]);
 
     assign alu_enable = ( state_reg[2]) & (~state_reg[1]) & (~state_reg[0]);
 
@@ -142,7 +154,15 @@ module top_fsm(
 
     assign LEDR[1] = op_out;
     assign LEDR[0] = led_tick;
+	 
+	 // LOGICA FSM Moviminento, PWM y calculo dinamico
+	 
+    // El PWM solo sale al motor si la MEF activa 'en_pwm'
+    and g2 (pwm_motor, w_internal_pwm, w_en_pwm);
 
+    // Detector de Cero (NOR de 4 entradas): dist_0 es 1 solo si todos los bits son 0
+    nor g3 (dist_0, dist_dyn[0], dist_dyn[1], dist_dyn[2], dist_dyn[3]);
+	 
     divisor_3s U_DIV_3 (
         .clk(clk),
         .tick_3s(tick_3s)
@@ -156,6 +176,7 @@ module top_fsm(
     next_state_logic U_NEXT (
         .state_reg(state_reg),
         .SW(SW),
+		  .stopped(stopped),
         .cont_fin(cont_fin),
         .next_state(next_state)
     );
@@ -235,5 +256,44 @@ module top_fsm(
         .state(state_reg),
         .hex(HEX0)
     );
+	 
+	 // FSM Movimiento
+    fsm_movimiento u_fsm (
+        .clk           (tick_3s),
+        .iniciar_viaje (iniciar_viaje),
+        .dist_0        (dist_0),
+        .en_pwm        (en_pwm),
+        .en_rest       (en_rest),
+        .stopped       (stopped)
+    );
+	 
+	 // Modulador PWM
+	 pwm_mod u_pwm (
+        .clk   (clk),
+        .rst_n (rst_n),
+        .sw    (dist_dyn), // Intensidad basada en distancia restante
+        .pwm   (internal_pwm)
+    );
+	 
+	 // Decodificador de 7 Segmentos (piso actual)
+	 hex_dec u_hex (
+        .bin   (piso_dyn), 
+        .seg   (HEX1)
+    );
+	 
+	 // Calculo de piso y distancia dinamico
+	 calculo_dinamico u_core (
+        .clk           (clk),
+        .rst_n         (rst_n),
+        .load          (stopped),       // Carga valores iniciales en S0/S3
+        .en_step       (en_rest),       // Ejecuta un paso de movimiento desde S1
+        .dir           (dir_out),        // Dirección para saber si sumar o restar al piso
+        .p_dest_in     (piso_destino_reg),
+        .p_act_in      (piso_actual_reg),
+        .dist_in       (distancia_reg),
+        .p_act_out     (piso_dyn),      // Salida hacia el HEX
+        .dist_out      (dist_dyn)       // Salida hacia el PWM y comparador dist_0
+    );
+	 
 
 endmodule
